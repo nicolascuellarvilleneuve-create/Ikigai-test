@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ikigai — Trouve ta raison d'être</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root{
+    --paper: #F2ECE1;
+    --paper-deep: #E7DFCF;
+    --ink: #23282A;
+    --ink-soft: #4B4740;
+    --indigo: #2B4570;
+    --indigo-soft: rgba(43,69,112,0.10);
+    --vermillion: #C34A36;
+    --vermillion-soft: rgba(195,74,54,0.12);
+    --gold: #B08D57;
+    --grey: #837C70;
+    --line: rgba(35,40,42,0.14);
+    --radius: 3px;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--paper);
+    background-image:
+      radial-gradient(ellipse at 15% 10%, rgba(176,141,87,0.06), transparent 55%),
+      radial-gradient(ellipse at 85% 90%, rgba(43,69,112,0.05), transparent 55%);
+    color: var(--ink);
+    font-family: 'Zen Kaku Gothic New', -apple-system, sans-serif;
+    min-height: 100vh;
+    display:flex;
+    justify-content:center;
+    line-height:1.55;
+  }
+
+  .scroll{
+    width:100%;
+    max-width: 720px;
+    padding: 48px 24px 80px;
+  }
+
+  h1,h2,h3{
+    font-family:'Shippori Mincho', serif;
+    font-weight:700;
+    color: var(--ink);
+    margin:0;
+  }
+
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color: var(--vermillion);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:22px; height:1px;
+    background: var(--vermillion);
+    display:inline-block;
+  }
+
+  .brush-divider{
+    width:100%; height:14px;
+    margin: 28px 0;
+    opacity:0.7;
+  }
+
+  /* ---------- Screens ---------- */
+  .screen{ display:none; }
+  .screen.active{ display:block; animation: fade .5s ease; }
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  /* Intro */
+  #intro h1{ font-size: 40px; line-height:1.15; margin-bottom:6px; }
+  #intro .sub{ font-family:'Shippori Mincho', serif; font-size:18px; color:var(--indigo); margin-bottom:22px; }
+  #intro p{ color: var(--ink-soft); font-size:16px; max-width: 58ch; }
+  .principle-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:14px;
+    margin: 28px 0 34px;
+  }
+  .principle{
+    border:1px solid var(--line);
+    background: rgba(255,255,255,0.35);
+    padding:16px 16px;
+    border-radius: var(--radius);
+  }
+  .principle .num{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--gold); }
+  .principle .lbl{ font-family:'Shippori Mincho',serif; font-weight:700; font-size:16px; margin-top:4px;}
+
+  /* Buttons */
+  .btn{
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    border:none;
+    cursor:pointer;
+    padding:14px 30px;
+    border-radius: var(--radius);
+    background: var(--ink);
+    color: var(--paper);
+    transition: transform .15s ease, background .2s ease;
+  }
+  .btn:hover{ background: var(--indigo); transform: translateY(-1px); }
+  .btn:focus-visible{ outline:2px solid var(--vermillion); outline-offset:2px; }
+  .btn.ghost{
+    background:transparent; color:var(--ink);
+    border:1px solid var(--ink);
+  }
+  .btn.ghost:hover{ background: var(--ink); color:var(--paper); }
+  .btn:disabled{ opacity:0.35; cursor:not-allowed; transform:none; background:var(--ink); }
+  .btn-row{ display:flex; gap:12px; margin-top: 30px; align-items:center; }
+
+  /* Progress */
+  .progress{
+    display:flex; gap:6px; margin-bottom: 30px;
+  }
+  .progress i{
+    flex:1; height:3px; background: var(--line); border-radius:2px; overflow:hidden; position:relative;
+  }
+  .progress i::after{
+    content:""; position:absolute; inset:0; background: var(--vermillion);
+    transform: scaleX(0); transform-origin:left; transition: transform .4s ease;
+  }
+  .progress i.done::after{ transform:scaleX(1); }
+
+  /* Step */
+  .step h2{ font-size:26px; margin-bottom:6px; }
+  .step .instruction{ color: var(--ink-soft); font-size:15px; max-width:56ch; margin-bottom:24px;}
+
+  .cat-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+  @media (max-width:560px){ .cat-grid{ grid-template-columns:1fr; } .principle-grid{grid-template-columns:1fr;} }
+
+  .cat-card{
+    border:1px solid var(--line);
+    background: rgba(255,255,255,0.4);
+    border-radius: var(--radius);
+    padding:14px 16px;
+    cursor:pointer;
+    display:flex; gap:12px; align-items:flex-start;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .cat-card:hover{ border-color: var(--gold); }
+  .cat-card.selected{
+    background: var(--vermillion-soft);
+    border-color: var(--vermillion);
+  }
+  .cat-card svg{ flex-shrink:0; width:26px; height:26px; margin-top:2px; }
+  .cat-card .txt strong{ font-family:'Shippori Mincho',serif; font-size:15px; display:block; margin-bottom:3px; }
+  .cat-card .txt span{ font-size:12.5px; color:var(--ink-soft); }
+  .cat-card input{ display:none; }
+
+  /* Results */
+  #results h2{ font-size:30px; }
+  .venn-wrap{ display:flex; justify-content:center; margin: 20px 0 10px; }
+  .legend{
+    display:flex; flex-wrap:wrap; gap:8px 18px; justify-content:center;
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--ink-soft);
+    margin-bottom: 30px;
+  }
+  .legend span{ display:flex; align-items:center; gap:6px; }
+  .legend i{ width:10px; height:10px; border-radius:50%; display:inline-block; }
+
+  .result-block{
+    border-top:1px solid var(--line);
+    padding: 26px 0;
+  }
+  .result-block .tag{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color: var(--vermillion); margin-bottom:8px; display:block;
+  }
+  .result-block h3{ font-size:21px; margin-bottom:10px; }
+  .career-list{ list-style:none; padding:0; margin:12px 0 0; display:flex; flex-wrap:wrap; gap:10px; }
+  .career-list li{
+    background: var(--indigo-soft); color: var(--indigo);
+    font-size:13.5px; font-weight:600;
+    padding:8px 14px; border-radius: 20px;
+  }
+  .note{ color:var(--ink-soft); font-size:14.5px; }
+
+  footer.restart{ margin-top: 40px; text-align:center; }
+</style>
+</head>
+<body>
+<div class="scroll">
+
+  <!-- INTRO -->
+  <section id="intro" class="screen active">
+    <div class="eyebrow">生き甲斐 · ikigai</div>
+    <h1>Trouve ta raison d'être</h1>
+    <div class="sub">Un test en 4 étapes, à l'intersection de quatre questions.</div>
+    <p>L'ikigai est un concept japonais qui désigne ce qui donne à ta vie sa direction et son sens — l'endroit où se croisent ce que tu aimes, ce en quoi tu excelles, ce dont le monde a besoin, et ce pour quoi on peut te payer. Réponds honnêtement : il n'y a pas de bonne réponse, seulement la tienne.</p>
+
+    <div class="principle-grid">
+      <div class="principle"><div class="num">01</div><div class="lbl">Ce que j'aime</div></div>
+      <div class="principle"><div class="num">02</div><div class="lbl">Ce en quoi je suis doué·e</div></div>
+      <div class="principle"><div class="num">03</div><div class="lbl">Ce dont le monde a besoin</div></div>
+      <div class="principle"><div class="num">04</div><div class="lbl">Ce pour quoi je peux être payé·e</div></div>
+    </div>
+
+    <button class="btn" onclick="goTo('step-0')">Commencer le test</button>
+  </section>
+
+  <!-- STEPS (generated identically, content injected by JS) -->
+  <section id="step-0" class="screen">
+    <div class="progress" id="progress-0"></div>
+    <div class="step">
+      <h2 id="step-title-0"></h2>
+      <p class="instruction" id="step-instr-0"></p>
+      <div class="cat-grid" id="step-grid-0"></div>
+      <div class="btn-row">
+        <button class="btn ghost" onclick="goTo('intro')">Retour</button>
+        <button class="btn" id="next-0" onclick="nextStep(0)">Suivant</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="step-1" class="screen">
+    <div class="progress" id="progress-1"></div>
+    <div class="step">
+      <h2 id="step-title-1"></h2>
+      <p class="instruction" id="step-instr-1"></p>
+      <div class="cat-grid" id="step-grid-1"></div>
+      <div class="btn-row">
+        <button class="btn ghost" onclick="goTo('step-0')">Retour</button>
+        <button class="btn" id="next-1" onclick="nextStep(1)">Suivant</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="step-2" class="screen">
+    <div class="progress" id="progress-2"></div>
+    <div class="step">
+      <h2 id="step-title-2"></h2>
+      <p class="instruction" id="step-instr-2"></p>
+      <div class="cat-grid" id="step-grid-2"></div>
+      <div class="btn-row">
+        <button class="btn ghost" onclick="goTo('step-1')">Retour</button>
+        <button class="btn" id="next-2" onclick="nextStep(2)">Suivant</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="step-3" class="screen">
+    <div class="progress" id="progress-3"></div>
+    <div class="step">
+      <h2 id="step-title-3"></h2>
+      <p class="instruction" id="step-instr-3"></p>
+      <div class="cat-grid" id="step-grid-3"></div>
+      <div class="btn-row">
+        <button class="btn ghost" onclick="goTo('step-2')">Retour</button>
+        <button class="btn" id="next-3" onclick="showResults()">Voir mes résultats</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="screen">
+    <div class="eyebrow">résultat</div>
+    <h2>Ta carte ikigai</h2>
+    <p class="note">Chaque catégorie que tu retrouves au centre du diagramme est un vrai signal — coche les 4 cases, et c'est une piste à prendre au sérieux.</p>
+    <div class="venn-wrap" id="venn-wrap"></div>
+    <div class="legend">
+      <span><i style="background:var(--indigo)"></i>Aimé</span>
+      <span><i style="background:var(--gold)"></i>Doué·e</span>
+      <span><i style="background:#5C7A5E"></i>Besoin du monde</span>
+      <span><i style="background:var(--vermillion)"></i>Payé·e</span>
+    </div>
+
+    <div id="result-content"></div>
+
+    <footer class="restart">
+      <button class="btn ghost" onclick="restartTest()">Recommencer le test</button>
+    </footer>
+  </section>
+
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const CATEGORIES = [
+  { id:"creativite", label:"Créativité & Arts", desc:"Imaginer, dessiner, écrire, composer, concevoir.", icon:`<path d="M4 20 Q10 8 20 4" stroke="var(--ink)" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="20" cy="4" r="1.6" fill="var(--ink)"/>` },
+  { id:"techno", label:"Technologie & Données", desc:"Coder, analyser, construire des systèmes.", icon:`<circle cx="7" cy="7" r="2" fill="none" stroke="var(--ink)" stroke-width="1.4"/><circle cx="19" cy="7" r="2" fill="none" stroke="var(--ink)" stroke-width="1.4"/><circle cx="13" cy="19" r="2" fill="none" stroke="var(--ink)" stroke-width="1.4"/><path d="M9 7H17M8 8.7L12 17M18 8.7L14 17" stroke="var(--ink)" stroke-width="1.2"/>` },
+  { id:"social", label:"Aide aux autres & Social", desc:"Écouter, accompagner, faire progresser.", icon:`<circle cx="9" cy="9" r="4.2" fill="none" stroke="var(--ink)" stroke-width="1.4"/><circle cx="16" cy="12" r="4.2" fill="none" stroke="var(--ink)" stroke-width="1.4"/>` },
+  { id:"nature", label:"Nature & Environnement", desc:"Cultiver, protéger, comprendre le vivant.", icon:`<path d="M12 21c0-9 6-13 9-14-2 8-5 12-9 14z" fill="none" stroke="var(--ink)" stroke-width="1.4"/><path d="M12 21c0-9-6-13-9-14 2 8 5 12 9 14z" fill="none" stroke="var(--ink)" stroke-width="1.4"/>` },
+  { id:"business", label:"Business & Entrepreneuriat", desc:"Négocier, vendre, construire un projet.", icon:`<path d="M4 19h17M6 19V11l4-3 4 4 6-6" stroke="var(--ink)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` },
+  { id:"enseignement", label:"Enseignement & Transmission", desc:"Expliquer, former, vulgariser.", icon:`<path d="M4 7l8-3 8 3-8 3-8-3z" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-linejoin="round"/><path d="M7 9v6c0 1.5 10 1.5 10 0V9" fill="none" stroke="var(--ink)" stroke-width="1.3"/>` },
+  { id:"sante", label:"Santé & Bien-être", desc:"Prendre soin du corps et de l'esprit.", icon:`<path d="M4 12h4l2-5 3 10 2-5h5" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>` },
+  { id:"communication", label:"Communication & Média", desc:"Raconter, convaincre, créer du lien.", icon:`<path d="M4 5h16v10H9l-5 4V5z" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-linejoin="round"/>` },
+];
+
+const STEPS = [
+  { key:"love", title:"Étape 1/4 — Ce qui t'anime", instr:"Coche les domaines qui te font perdre la notion du temps, ceux vers lesquels tu reviens sans qu'on te le demande." },
+  { key:"talent", title:"Étape 2/4 — Ce que tu maîtrises", instr:"Coche les domaines où les autres reconnaissent ton talent, ou que tu apprends plus vite que la moyenne." },
+  { key:"need", title:"Étape 3/4 — Ce dont le monde a besoin", instr:"Coche les domaines où, selon toi, ton travail aurait un impact réel et utile pour d'autres." },
+  { key:"pay", title:"Étape 4/4 — Ce pour quoi on peut te payer", instr:"Coche les domaines qui ont, aujourd'hui, un vrai marché, des débouchés, une demande économique." },
+];
+
+const SINGLE_CAREERS = {
+  creativite: ["Designer UX/UI","Directeur·rice artistique","Illustrateur·rice","Rédacteur·rice créatif"],
+  techno: ["Data analyst","Développeur·se logiciel","Ingénieur·e IA/ML","Architecte de systèmes"],
+  social: ["Travailleur·se social","Coach professionnel","Chargé·e RH","Psychologue du travail"],
+  nature: ["Consultant·e RSE","Ingénieur·e environnement","Agronome","Chargé·e de mission biodiversité"],
+  business: ["Chef·fe de produit","Entrepreneur·e","Consultant·e en stratégie","Business developer"],
+  enseignement: ["Formateur·rice","Enseignant·e","Créateur·rice de contenu pédagogique","Concepteur·rice e-learning"],
+  sante: ["Infirmier·ère","Coach bien-être","Nutritionniste","Ergothérapeute"],
+  communication: ["Community manager","Journaliste","Responsable marketing","Attaché·e de presse"],
+};
+
+const COMBO_CAREERS = {
+  "creativite|techno": ["Product designer (UX/UI)","Créateur·rice de jeux vidéo","Développeur·se front-end créatif"],
+  "communication|creativite": ["Directeur·rice de création en agence","Content strategist","Réalisateur·rice de contenus de marque"],
+  "business|creativite": ["Fondateur·rice de studio créatif","Brand designer indépendant·e"],
+  "creativite|enseignement": ["Formateur·rice en arts créatifs","Créateur·rice de cours en ligne créatifs"],
+  "business|techno": ["Product manager","Entrepreneur·e tech","Growth hacker"],
+  "social|techno": ["UX researcher","Développeur·se tech for good"],
+  "enseignement|techno": ["Formateur·rice tech","Concepteur·rice EdTech"],
+  "enseignement|social": ["Formateur·rice / coach en développement","Responsable de programmes sociaux"],
+  "sante|social": ["Psychologue","Éducateur·rice spécialisé·e","Infirmier·ère en santé communautaire"],
+  "communication|social": ["Chargé·e de communication associative","Responsable RSE / impact"],
+  "business|communication": ["Responsable marketing / growth","Consultant·e en stratégie de marque"],
+  "business|sante": ["Entrepreneur·e en santé/bien-être","Consultant·e pour organisations de santé"],
+  "business|nature": ["Entrepreneur·e en transition écologique","Consultant·e économie circulaire"],
+  "enseignement|nature": ["Éducateur·rice à l'environnement","Formateur·rice en écologie"],
+  "enseignement|sante": ["Formateur·rice en santé","Éducateur·rice thérapeutique"],
+  "communication|enseignement": ["Vulgarisateur·rice / créateur·rice de contenu pédagogique","Formateur·rice en communication"],
+};
+
+const REGION_NAMES = { love_talent:"Passion", talent_pay:"Profession", pay_need:"Vocation", need_love:"Mission" };
+
+/* ---------------- STATE ---------------- */
+const selections = { love:new Set(), talent:new Set(), need:new Set(), pay:new Set() };
+
+function buildGrid(stepIndex){
+  const grid = document.getElementById('step-grid-'+stepIndex);
+  const key = STEPS[stepIndex].key;
+  grid.innerHTML = "";
+  CATEGORIES.forEach(cat=>{
+    const card = document.createElement('label');
+    card.className = 'cat-card';
+    card.id = `card-${key}-${cat.id}`;
+    card.innerHTML = `
+      <svg viewBox="0 0 24 24">${cat.icon}</svg>
+      <div class="txt"><strong>${cat.label}</strong><span>${cat.desc}</span></div>
+      <input type="checkbox" />
+    `;
+    card.addEventListener('click', (e)=>{
+      e.preventDefault();
+      toggleSelection(key, cat.id, card);
+    });
+    grid.appendChild(card);
+  });
+}
+
+function toggleSelection(key, catId, card){
+  if(selections[key].has(catId)){
+    selections[key].delete(catId);
+    card.classList.remove('selected');
+  } else {
+    selections[key].add(catId);
+    card.classList.add('selected');
+  }
+  const idx = STEPS.findIndex(s=>s.key===key);
+  document.getElementById('next-'+idx).disabled = selections[key].size===0;
+}
+
+function buildProgress(stepIndex){
+  const p = document.getElementById('progress-'+stepIndex);
+  p.innerHTML = "";
+  for(let i=0;i<4;i++){
+    const seg = document.createElement('i');
+    if(i < stepIndex) seg.classList.add('done');
+    if(i === stepIndex) seg.classList.add('done');
+    p.appendChild(seg);
+  }
+}
+
+function initStep(i){
+  document.getElementById('step-title-'+i).textContent = STEPS[i].title;
+  document.getElementById('step-instr-'+i).textContent = STEPS[i].instr;
+  buildGrid(i);
+  buildProgress(i);
+  document.getElementById('next-'+i).disabled = true;
+}
+
+for(let i=0;i<4;i++) initStep(i);
+
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function nextStep(i){
+  goTo('step-'+(i+1));
+}
+
+/* ---------------- RESULTS ---------------- */
+function showResults(){
+  const scores = {};
+  CATEGORIES.forEach(c=>{
+    let s = 0;
+    ['love','talent','need','pay'].forEach(dim=>{ if(selections[dim].has(c.id)) s++; });
+    scores[c.id] = s;
+  });
+
+  renderVenn(scores);
+  renderContent(scores);
+  goTo('results');
+}
+
+function regionFor(catId){
+  const has = dim => selections[dim].has(catId);
+  const count = ['love','talent','need','pay'].filter(has).length;
+  if(count>=3) return 'center';
+  if(count===2){
+    if(has('love') && has('talent')) return 'love_talent';
+    if(has('talent') && has('pay')) return 'talent_pay';
+    if(has('pay') && has('need')) return 'pay_need';
+    if(has('need') && has('love')) return 'need_love';
+    return 'center'; // diagonal combo (love+pay or talent+need) -> treat as rare bridge, show centrally
+  }
+  if(count===1){
+    if(has('love')) return 'love';
+    if(has('talent')) return 'talent';
+    if(has('need')) return 'need';
+    if(has('pay')) return 'pay';
+  }
+  return null;
+}
+
+function renderVenn(scores){
+  const W=340,H=340,R=118;
+  const centers = {
+    love:   {x:170-52, y:170-52},
+    talent: {x:170+52, y:170-52},
+    need:   {x:170-52, y:170+52},
+    pay:    {x:170+52, y:170+52},
+  };
+  const colors = { love:"#2B4570", talent:"#B08D57", need:"#5C7A5E", pay:"#C34A36" };
+  const labels = { love:"Aimé", talent:"Doué·e", need:"Besoin du monde", pay:"Payé·e" };
+
+  let circles = Object.keys(centers).map(k=>{
+    return `<circle cx="${centers[k].x}" cy="${centers[k].y}" r="${R}" fill="${colors[k]}" fill-opacity="0.16" stroke="${colors[k]}" stroke-width="1.3"/>`;
+  }).join("");
+
+  // outer labels
+  let outerLabels = `
+    <text x="${centers.love.x-70}" y="${centers.love.y-70}" font-family="JetBrains Mono, monospace" font-size="10.5" fill="${colors.love}">${labels.love}</text>
+    <text x="${centers.talent.x+18}" y="${centers.talent.y-70}" font-family="JetBrains Mono, monospace" font-size="10.5" fill="${colors.talent}">${labels.talent}</text>
+    <text x="${centers.need.x-70}" y="${centers.need.y+92}" font-family="JetBrains Mono, monospace" font-size="10.5" fill="${colors.need}">${labels.need}</text>
+    <text x="${centers.pay.x+18}" y="${centers.pay.y+92}" font-family="JetBrains Mono, monospace" font-size="10.5" fill="${colors.pay}">${labels.pay}</text>
+  `;
+
+  // position tags per region, stacking multiples
+  const regionPos = {
+    love: {x:centers.love.x-46, y:centers.love.y-10, dx:0, dy:14},
+    talent: {x:centers.talent.x+2, y:centers.talent.y-10, dx:0, dy:14},
+    need: {x:centers.need.x-46, y:centers.need.y+16, dx:0, dy:14},
+    pay: {x:centers.pay.x+2, y:centers.pay.y+16, dx:0, dy:14},
+    love_talent: {x:170-30, y:170-58, dx:0, dy:13},
+    talent_pay: {x:170+16, y:170, dx:0, dy:13},
+    pay_need: {x:170-30, y:170+46, dx:0, dy:13},
+    need_love: {x:170-96, y:170, dx:0, dy:13},
+    center: {x:170-24, y:170-6, dx:0, dy:13},
+  };
+  const stackCount = {};
+  let tagSvg = "";
+  CATEGORIES.forEach(c=>{
+    const region = regionFor(c.id);
+    if(!region) return;
+    stackCount[region] = (stackCount[region]||0);
+    const pos = regionPos[region];
+    const y = pos.y + stackCount[region]*pos.dy;
+    const isCore = region==='center';
+    tagSvg += `<text x="${pos.x}" y="${y}" font-family="Zen Kaku Gothic New, sans-serif" font-size="${isCore?11.5:9.5}" font-weight="${isCore?700:500}" fill="${isCore? '#C34A36':'#23282A'}">${labelShort(c.label)}</text>`;
+    stackCount[region]++;
+  });
+
+  const svg = `<svg viewBox="0 0 340 340" width="340" height="340" xmlns="http://www.w3.org/2000/svg">
+    ${circles}
+    ${outerLabels}
+    ${tagSvg}
+  </svg>`;
+  document.getElementById('venn-wrap').innerHTML = svg;
+}
+
+function labelShort(label){
+  return label.split(" & ")[0];
+}
+
+function renderContent(scores){
+  const sorted = CATEGORIES.map(c=>({...c, score:scores[c.id]})).sort((a,b)=>b.score-a.score);
+  const top = sorted.filter(c=>c.score>0);
+  const container = document.getElementById('result-content');
+  container.innerHTML = "";
+
+  if(top.length===0){
+    container.innerHTML = `<p class="note">Tu n'as encore rien coché — reviens en arrière pour répondre au test avant de découvrir ta carte ikigai.</p>`;
+    return;
+  }
+
+  const first = top[0];
+  const second = top[1];
+
+  // Bloc 1 : zone principale
+  const block1 = document.createElement('div');
+  block1.className = 'result-block';
+  if(first.score===4){
+    block1.innerHTML = `
+      <span class="tag">Ton ikigai</span>
+      <h3>${first.label}</h3>
+      <p class="note">Cette catégorie coche les quatre cases : tu l'aimes, tu y es doué·e, elle répond à un besoin réel, et elle peut te faire vivre. C'est la piste la plus solide à explorer en priorité.</p>
+      <ul class="career-list">${SINGLE_CAREERS[first.id].map(j=>`<li>${j}</li>`).join("")}</ul>
+    `;
+  } else if(first.score===3){
+    block1.innerHTML = `
+      <span class="tag">Ta zone la plus forte</span>
+      <h3>${first.label}</h3>
+      <p class="note">Trois critères sur quatre se rejoignent ici — c'est proche de l'ikigai. Il manque peut-être une case (souvent "être payé·e" ou "besoin du monde") à consolider avec le temps ou une reconversion progressive.</p>
+      <ul class="career-list">${SINGLE_CAREERS[first.id].map(j=>`<li>${j}</li>`).join("")}</ul>
+    `;
+  } else {
+    block1.innerHTML = `
+      <span class="tag">Ta zone la plus forte</span>
+      <h3>${first.label}</h3>
+      <p class="note">Aucune catégorie ne coche encore les 4 cases pour toi — c'est très courant. Regarde plutôt la combinaison de tes deux domaines dominants ci-dessous : l'ikigai se construit souvent à l'intersection de deux forces plutôt que dans une seule case parfaite.</p>
+    `;
+  }
+  container.appendChild(block1);
+
+  // Bloc 2 : combinaison des deux catégories dominantes
+  if(second && second.score>0){
+    const key = [first.id, second.id].sort().join("|");
+    const combo = COMBO_CAREERS[key];
+    const block2 = document.createElement('div');
+    block2.className = 'result-block';
+    const jobs = combo ? combo : [...SINGLE_CAREERS[first.id].slice(0,2), ...SINGLE_CAREERS[second.id].slice(0,2)];
+    block2.innerHTML = `
+      <span class="tag">Combinaison recommandée</span>
+      <h3>${first.label} × ${second.label}</h3>
+      <p class="note">C'est souvent à la croisée de deux domaines qu'un métier prend tout son sens — assez rare pour te démarquer, assez ancré dans tes forces réelles pour tenir dans la durée.</p>
+      <ul class="career-list">${jobs.map(j=>`<li>${j}</li>`).join("")}</ul>
+    `;
+    container.appendChild(block2);
+  }
+
+  // Bloc 3 : synthèse des scores
+  const block3 = document.createElement('div');
+  block3.className = 'result-block';
+  block3.innerHTML = `
+    <span class="tag">Détail de tes réponses</span>
+    <h3>Ce que ta carte montre</h3>
+    <ul class="career-list">
+      ${sorted.filter(c=>c.score>0).map(c=>`<li>${c.label} · ${c.score}/4</li>`).join("")}
+    </ul>
+    <p class="note" style="margin-top:14px;">Un score de 4/4 = ikigai potentiel. 3/4 = très proche, à muscler sur la case manquante. 2/4 = une force réelle à combiner avec une autre. 1/4 = une envie ou compétence isolée, à garder en tête sans en faire un métier à part entière.</p>
+  `;
+  container.appendChild(block3);
+}
+
+function restartTest(){
+  ['love','talent','need','pay'].forEach(k=>selections[k].clear());
+  for(let i=0;i<4;i++) initStep(i);
+  goTo('intro');
+}
+</script>
+</body>
+</html>
